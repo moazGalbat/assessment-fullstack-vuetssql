@@ -1,10 +1,14 @@
-import { object, string, number } from "zod";
+import { object, string, number, boolean } from "zod";
 import type { z } from "zod";
 
+const FilterSchema = object({
+  completed: boolean().optional(),
+});
 export const taskPerTeamRequestSchema = object({
   teamId: string(),
   limit: number().int().optional(),
   page: number().int().optional(),
+  filter: FilterSchema.optional(),
 });
 export type TaskPerTeamRequestSchema = z.infer<typeof taskPerTeamRequestSchema>;
 

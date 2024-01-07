@@ -10,10 +10,17 @@ export const tasks = router({
     .input(taskPerTeamRequestSchema)
     .query(async ({ ctx: { user }, input }) => {
       const { userId } = user;
-      const { teamId, limit = 10, page = 1 } = input;
+      const { teamId, limit = 10, page = 1, filter = {} } = input;
       const offset = (page - 1) * limit;
       const tasks = await db.query.task.findMany({
         where: (task, { eq, and }) => {
+          if (filter.hasOwnProperty("completed")) {
+            return and(
+              eq(task.teamId, teamId),
+              eq(task.userId, userId),
+              eq(task.completed, filter.completed as boolean)
+            );
+          }
           return and(eq(task.teamId, teamId), eq(task.userId, userId));
         },
         limit,
