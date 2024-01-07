@@ -1,4 +1,11 @@
-import { uuid, text, timestamp, pgTable, integer } from "drizzle-orm/pg-core";
+import {
+  uuid,
+  text,
+  timestamp,
+  pgTable,
+  integer,
+  boolean,
+} from "drizzle-orm/pg-core";
 
 export const user = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -32,4 +39,23 @@ export const passwordResetRequest = pgTable("password_reset_requests", {
   userId: uuid("user_id").notNull(),
   token: text("token").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const team = pgTable("teams", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  ownerId: uuid("owner_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+});
+
+export const task = pgTable("tasks", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  description: text("description").notNull(),
+  completed: boolean("completed").default(false),
+  teamId: uuid("team_id")
+    .unique()
+    .notNull()
+    .references(() => team.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").references(() => user.id, { onDelete: "set null" }),
 });
